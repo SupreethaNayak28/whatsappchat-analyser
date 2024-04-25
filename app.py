@@ -484,7 +484,7 @@ selected_user_titles = ["User Statistics","Sentiment Analysis","Comparative Anal
                         "Word and Emoji Analysis","Timeline Analysis"]
 
 # Determine which titles to use based on the selected user
-if selected_user == 'Overall':
+if selected_user == 'Overall Users':
     titles = overall_titles
 else:
     titles = selected_user_titles
@@ -493,7 +493,7 @@ else:
 titles = titles[:len(figs)]
 
 # Remove the sentiment score title if it's available and the user is not "Overall"
-if selected_user != 'Overall' and "Sentiment Scores" in titles:
+if selected_user != 'Overall Users' and "Sentiment Scores" in titles:
     titles.remove("Sentiment Scores")
 
 # Generate PDF report
