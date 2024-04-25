@@ -12,6 +12,7 @@ from sklearn.decomposition import LatentDirichletAllocation
 import plotly.express as px
 from helper import perform_sentiment_analysis, plot_sentiment_scores
 from tempfile import NamedTemporaryFile
+from fpdf import FPDF
 # Suppressing the Streamlit warning
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
