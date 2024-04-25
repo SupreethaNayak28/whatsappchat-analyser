@@ -1,0 +1,13 @@
+streamlit
+pandas
+numpy
+matplotlib
+seaborn
+pillow
+plotly
+scikit-learn
+wordcloud
+textblob
+vaderSentiment
+emoji==2.8.0
+urlextract
