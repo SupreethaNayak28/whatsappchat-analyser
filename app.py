@@ -129,10 +129,10 @@ if uploaded_file:
     # Adding a search box for selecting the user
     search_user = st.sidebar.text_input("Search for a User", "")
 
-    # Filter the user list based on the search input
+   # Filter the user list based on the search input
     filtered_users = [user for user in user_list if search_user.lower() in user.lower()]
 
-    # Creating a select box with the filtered user list
+# Creating a select box with the filtered user list
     selected_user = st.sidebar.selectbox("Select The User", filtered_users)
     if selected_user == "Overall Users":
         analysis_menu = ["User Statistics","Sentiment Analysis","Comparative Analysis","User Activity","Overall User Activity",
