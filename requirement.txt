@@ -12,4 +12,4 @@ vaderSentiment
 emoji==2.8.0
 urlextract
 fpdf
-nltk==3.8.1
+nltk
