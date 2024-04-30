@@ -1,9 +1,11 @@
+import nltk
+nltk.download('vader_lexicon')
+nltk.download('punkt')
+
 import streamlit as st
 import preprocessor
 import helper
 import matplotlib.pyplot as plt
-import nltk
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import seaborn as sns
 from PIL import Image
 import numpy as np
