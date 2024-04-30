@@ -34,7 +34,6 @@ uploaded_file = st.sidebar.file_uploader("Upload Exported Chat", type=["txt", "c
 
 figs = []
 
-
 def generate_blank_pdf(filename):
     pdf = FPDF()
     pdf.add_page()
@@ -108,19 +107,22 @@ def generate_pdf_report(figs, titles, filename, selected_user):
         pdf.output(pdf_output_path)
 
     return pdf_output_path
-
-
 # Function to create download link
 def create_download_link_sidebar(val, filename):
     b64 = base64.b64encode(val).decode()  # val looks like b'...'
     return f'<a href="data:application/octet-stream;base64,{b64}" download="{filename}.pdf">Download PDF file</a>'
+# Define the titles for overall analysis
+overall_titles = ["Analysis-1", "Analysis-2", "Analysis-3", "Analysis-4",
+                  "Analysis-5", "Analysis-6", "Analysis-7","Analysis-8","Analysis-9"]
 
+# Define the titles for selected user analysis
+selected_user_titles = ["Analysis-1", "Analysis-2", "Analysis-3", "Analysis-4",
+                  "Analysis-5", "Analysis-6", "Analysis-7","Analysis-8","Analysis-9"]
 if uploaded_file:
     # To read file as bytes
     bytes_data = uploaded_file.getvalue()
     data = bytes_data.decode("utf-8")
     df = preprocessor.preprocess(data)
-
     # Fetch unique Users
     user_list = df['username'].unique().tolist()
     user_list.sort()
@@ -129,10 +131,10 @@ if uploaded_file:
     # Adding a search box for selecting the user
     search_user = st.sidebar.text_input("Search for a User", "")
 
-   # Filter the user list based on the search input
+    # Filter the user list based on the search input
     filtered_users = [user for user in user_list if search_user.lower() in user.lower()]
 
-# Creating a select box with the filtered user list
+    # Creating a select box with the filtered user list
     selected_user = st.sidebar.selectbox("Select The User", filtered_users)
     if selected_user == "Overall Users":
         analysis_menu = ["User Statistics","Sentiment Analysis","Comparative Analysis","User Activity","Overall User Activity",
@@ -146,18 +148,12 @@ if uploaded_file:
     # Sentiment Analysis
     if choice == "Sentiment Analysis":
 
-        # Choose sentiment analysis method
-        #method = st.sidebar.selectbox("Choose sentiment analysis method", ["textblob", "vader"])
-
-        #method = st.sidebar.selectbox("Choose sentiment analysis method", ["vader"], index=0, key="method_select")
-        #st.markdown("<style>div.row-widget.stRadio > div{visibility: hidden;}</style>", unsafe_allow_html=True)
-
         # Update sentiment analysis button handler
         if st.sidebar.button("Show Sentiment Analysis", key="sentiment_analysis_button"):
             if selected_user != 'Overall Users':
                 df = df[df['username'] == selected_user]
             user_sentiment_scores = perform_sentiment_analysis(df)
-            st.title('Sentimental Analysis')
+            st.subheader('Sentimental Analysis')
 
             # Plot overall sentiment scores
             plot = plot_sentiment_scores(user_sentiment_scores)
@@ -183,6 +179,7 @@ if uploaded_file:
             else:
                 st.write("Click the 'Show Sentiment Analysis' button to calculate sentiment scores.")
 
+
     elif choice == "Comparative Analysis":
 
         st.subheader("Comparative Analysis between Users")
@@ -192,7 +189,6 @@ if uploaded_file:
         st.write("---")
 
         if users_to_compare:
-
             min_date = df["date"].min().date()
 
             max_date = df["date"].max().date()
@@ -212,11 +208,6 @@ if uploaded_file:
             user_filtered_df = date_filtered_df[date_filtered_df["username"].isin(users_to_compare)]
 
             # Debug statements
-
-            st.write("Filtered Data within Selected Time Range:")
-
-            st.write(date_filtered_df.head())  # Print first few rows of filtered data
-
             st.write("Filtered Data for Selected Users:")
 
             st.write(user_filtered_df.head())  # Print first few rows of user filtered data
@@ -229,24 +220,29 @@ if uploaded_file:
 
             st.write(users_activity)  # Print users_activity to check its contents
 
-
-            plt.bar(users_activity.index, users_activity.values)
             # Create a new figure
+
             fig, ax = plt.subplots(figsize=(8, 6))
 
             # Plot the bar chart on the created figure
+
             plt.bar(users_activity.index, users_activity.values)
+
             plt.xlabel('Users')
+
             plt.ylabel('Message Count')
+
             plt.title('Comparative Analysis: Message Count by Users')
+
             plt.xticks(rotation=45)
 
             # Display the bar chart in Streamlit
+
             st.pyplot(fig)
 
             # Append the created figure to figs
-            figs.append(fig)
 
+            figs.append(fig)
 
     elif st.sidebar.button("Start Analysis"):
         # User Statistics
@@ -292,34 +288,54 @@ if uploaded_file:
             st.markdown("### Total Contact Shared: ")
             st.write(f"<div class='big-font'>{shared_contact}</div>", unsafe_allow_html=True)
 
-            #st.write("---")
-
-            #st.markdown("### Total Location Shared: ")
-            #st.write(f"<div class='big-font'>{shared_location}</div>", unsafe_allow_html=True)
-
         # User Activity
         elif choice == "User Activity":
             if selected_user == 'Overall Users':
                 top, bottom = helper.most_least_busy_users(df)
 
-                st.subheader('Most Active Users')
-                st.bar_chart(top)
+                top, bottom = helper.most_least_busy_users(df)
 
+                # Plotting the most active users
+                st.subheader("Most Active Users")
+                fig_top, ax_top = plt.subplots(figsize=(8, 6))
+                ax_top.bar(top.index, top.values)
+                ax_top.set_title('Most Active Users')
+                ax_top.set_xlabel('User')
+                ax_top.set_ylabel('Message Count')
+                ax_top.tick_params(axis='x', rotation=45)
+
+                # Display the Matplotlib plot for most active users in Streamlit with heading
+                st.pyplot(fig_top)
+
+                # Append the Matplotlib figure to the list
+                figs.append(fig_top)
                 st.write("---")
 
-                st.subheader('Least Active Users')
-                st.bar_chart(bottom)
+                # Plotting the least active users
+                st.subheader("Least Active Users")
+                fig_bottom, ax_bottom = plt.subplots(figsize=(8, 6))
+                ax_bottom.bar(bottom.index, bottom.values)
+                ax_bottom.set_title('Least Active Users')
+                ax_bottom.set_xlabel('User')
+                ax_bottom.set_ylabel('Message Count')
+                ax_bottom.tick_params(axis='x', rotation=45)
 
+                # Display the Matplotlib plot for least active users in Streamlit with heading
+                st.pyplot(fig_bottom)
+
+                # Append the Matplotlib figure to the list
+                figs.append(fig_bottom)
                 st.write("---")
 
             # Week Activity Map
             st.subheader("Week Activity Map")
             week_activity_data = helper.week_activity_map(selected_user, df)
             fig, ax = plt.subplots(figsize=(8, 6))
-            week_activity_data.sort_index().plot(kind='bar', ax=ax)
+            week_activity_data.sort_index().plot(kind='bar', ax=ax,color='green')
             ax.set_title("Activity Throughout the Week")
             ax.set_ylabel("Number of Messages")
             ax.set_xlabel("Day of the Week")
+            ax.set_xticklabels(week_activity_data.index, rotation=45)
             st.pyplot(fig)
             figs.append(fig)
 
@@ -329,10 +345,11 @@ if uploaded_file:
             st.subheader("Month Activity Map")
             month_activity_data = helper.month_activity_map(selected_user, df)
             fig, ax = plt.subplots(figsize=(8, 6))
-            month_activity_data.sort_index().plot(kind='bar', ax=ax)
+            month_activity_data.sort_index().plot(kind='bar', ax=ax,color='green')
             ax.set_title("Activity Throughout the Month")
             ax.set_ylabel("Number of Messages")
             ax.set_xlabel("Month")
+            ax.set_xticklabels(month_activity_data.index, rotation=45)
             st.pyplot(fig)
             figs.append(fig)
 
@@ -347,108 +364,205 @@ if uploaded_file:
             st.pyplot(fig)
             figs.append(fig)
 
+            st.write("---")
+
             # Adding another column for message length; using the apply method
             df['message_length'] = df['message'].apply(lambda x: len(x))
 
             # Grouping by 'username' and calculating the average message length for each user
             avg_msg_lengths = df.groupby('username')['message_length'].mean().reset_index()
 
-            # Selecting the top 5 users based on average message length
-            top5_users = avg_msg_lengths.sort_values(by='message_length', ascending=False).head(10)
+            # Check if a specific user is selected
+            if selected_user != 'Overall Users':
+                # Filter the dataframe for the selected user
+                user_data = avg_msg_lengths[avg_msg_lengths['username'] == selected_user]
 
-            # Plotting the bar graph
-            plt.figure(figsize=(10, 6))
-            st.subheader("Top 10 Users by Average Message Length")
+                # Create a new figure and axis
+                st.subheader(f"Average Message Length for {selected_user}")
+                fig, ax = plt.subplots(figsize=(6, 4))
 
-            # Creating the plot
-            plt.figure(figsize=(10, 6))
-            sns.barplot(data=top5_users, x='username', y='message_length', palette='viridis')
-            plt.title('Top 5 Users by Average Message Length')
-            plt.xlabel('User')
-            plt.ylabel('Average Message Length')
-            plt.xticks(rotation=45)
+                # Plot the bar graph for the selected user
+                sns.barplot(data=user_data, x='username', y='message_length', palette='viridis', ax=ax)
 
-            # Displaying the plot using Streamlit
-            st.pyplot()
+                # Set title and labels
+                ax.set_title(f'Average Message Length for {selected_user}')
+                ax.set_xlabel('User')
+                ax.set_ylabel('Average Message Length')
+
+                # Display the Matplotlib plot in Streamlit
+                st.pyplot(fig)
+                figs.append(fig)
+
+                # Print the average message length for the selected user
+                st.write(
+                    f"Average Message Length for {selected_user}: {user_data.iloc[0]['message_length']:.2f} characters")
+            else:
+                # Selecting the top 10 users based on average message length
+                top10_users = avg_msg_lengths.sort_values(by='message_length', ascending=False).head(10)
+
+                # Create a new figure and axis
+                st.subheader("Top 10 Users by Average Message Length")
+                fig, ax = plt.subplots(figsize=(10, 6))
+
+                # Plot the bar graph using Seaborn's default color palette
+                sns.barplot(data=top10_users, x='username', y='message_length', palette='viridis', ax=ax)
+
+                # Set title and labels
+                ax.set_title('Top 10 Users by Average Message Length')
+                ax.set_xlabel('User')
+                ax.set_ylabel('Average Message Length')
+                ax.tick_params(axis='x', rotation=45)
+
+                # Display the Matplotlib plot in Streamlit
+                st.pyplot(fig)
+                figs.append(fig)
+
+                # Display the average message lengths for the top 10 users
+                st.write("Average Message Lengths for Top 10 Users:")
+                for index, row in top10_users.iterrows():
+                    st.write(f"{row['username']}: {row['message_length']:.2f} characters")
 
 
-            st.write("Average Message Lengths:")
-            for index, row in top5_users.iterrows():
-                st.write(f"{row['username']}: {row['message_length']:.2f} characters")
 
         elif choice == "Overall User Activity":
+
             user_activity_df = helper.user_activity_in_chat(df)
+
             st.header("Activity Analysis of Each User in a Group Chat:")
 
+            # Assuming user_activity_df contains the data
             st.subheader("Total Messages Sent By The User:")
-            st.bar_chart(user_activity_df, x='username', y='Total_Messages')
-
-            st.write("---")
+            fig1, ax1 = plt.subplots(figsize=(10, 6))  # Increased figure size
+            ax1.bar(user_activity_df['username'], user_activity_df['Total_Messages'], width=0.5)  # Adjusted bar width
+            ax1.set_xlabel('User')
+            ax1.set_ylabel('Total Messages')
+            ax1.set_title('Total Messages Sent By The User')
+            ax1.tick_params(axis='x', rotation=75)  # Rotated tick labels by 90 degrees
+            st.pyplot(fig1)
+            figs.append(fig1)
 
             st.subheader("Total Words Sent By The User:")
-            st.bar_chart(user_activity_df, x='username', y='Total_Words')
-
-            st.write("---")
+            fig2, ax1 = plt.subplots(figsize=(10, 6))  # Increased figure size
+            ax1.bar(user_activity_df['username'], user_activity_df['Total_Words'], width=0.5)  # Adjusted bar width
+            ax1.set_xlabel('User')
+            ax1.set_ylabel('Total Words')
+            ax1.set_title('Total Words Sent By The User')
+            ax1.tick_params(axis='x', rotation=75)  # Rotated tick labels by 90 degrees
+            st.pyplot(fig2)
+            figs.append(fig2)
 
             st.subheader("Percentage of Messages Sent By The User:")
-            st.bar_chart(user_activity_df, x='username', y='Percentage')
+            fig3, ax1 = plt.subplots(figsize=(10, 6))  # Increased figure size
+            ax1.bar(user_activity_df['username'], user_activity_df['Percentage'], width=0.5)  # Adjusted bar width
+            ax1.set_xlabel('User')
+            ax1.set_ylabel('Percentage')
+            ax1.set_title('Total Percentage By Each User')
+            ax1.tick_params(axis='x', rotation=75)  # Rotated tick labels by 90 degrees
+            st.pyplot(fig3)
+            figs.append(fig3)
 
             st.write("---")
 
             st.subheader("Total Media Shared By The User:")
-            st.bar_chart(user_activity_df, x='username', y='Media_Shared')
-
+            fig4, ax1 = plt.subplots(figsize=(10, 6))  # Increased figure size
+            ax1.bar(user_activity_df['username'], user_activity_df['Media_Shared'], width=0.5)  # Adjusted bar width
+            ax1.set_xlabel('User')
+            ax1.set_ylabel('Media Shared')
+            ax1.set_title('Total Media Shared By The User')
+            ax1.tick_params(axis='x', rotation=75)  # Rotated tick labels by 90 degrees
+            st.pyplot(fig4)
+            figs.append(fig4)
             st.write("---")
 
             st.subheader("Total Links Shared By The User:")
-            st.bar_chart(user_activity_df, x='username', y='Links_Shared')
-
+            fig5, ax1 = plt.subplots(figsize=(10, 6))  # Increased figure size
+            ax1.bar(user_activity_df['username'], user_activity_df['Links_Shared'], width=0.5)  # Adjusted bar width
+            ax1.set_xlabel('User')
+            ax1.set_ylabel('Links Shared')
+            ax1.set_title('Total Links Shared By The User')
+            ax1.tick_params(axis='x', rotation=75)  # Rotated tick labels by 90 degrees
+            st.pyplot(fig5)
+            figs.append(fig5)
             st.write("---")
 
             st.subheader("Total Emojis Shared By The User:")
-            st.bar_chart(user_activity_df, x='username', y='Emojis_Shared')
-
+            fig6, ax1 = plt.subplots(figsize=(10, 6))  # Increased figure size
+            ax1.bar(user_activity_df['username'], user_activity_df['Emojis_Shared'], width=0.5)  # Adjusted bar width
+            ax1.set_xlabel('User')
+            ax1.set_ylabel('Emojis Shared')
+            ax1.set_title('Total Emojis Shared By The User')
+            ax1.tick_params(axis='x', rotation=75)  # Rotated tick labels by 90 degrees
+            st.pyplot(fig6)
+            figs.append(fig6)
             st.write("---")
 
             st.subheader("Total Deleted Messages By Each User:")
-            st.bar_chart(user_activity_df, x='username', y='Deleted_Messages')
-
+            fig7, ax1 = plt.subplots(figsize=(10, 6))  # Increased figure size
+            ax1.bar(user_activity_df['username'], user_activity_df['Deleted_Messages'], width=0.5)  # Adjusted bar width
+            ax1.set_xlabel('User')
+            ax1.set_ylabel('Deleted_Messages')
+            ax1.set_title('Total Deleted Messages By The User')
+            ax1.tick_params(axis='x', rotation=75)  # Rotated tick labels by 90 degrees
+            st.pyplot(fig7)
+            figs.append(fig7)
             st.write("---")
 
             st.subheader("Total Edited Messages By Each User:")
-            st.bar_chart(user_activity_df, x='username', y='Edited_Messages')
-
+            fig8, ax1 = plt.subplots(figsize=(10, 6))  # Increased figure size
+            ax1.bar(user_activity_df['username'], user_activity_df['Edited_Messages'], width=0.5)  # Adjusted bar width
+            ax1.set_xlabel('User')
+            ax1.set_ylabel('Edited_Messages')
+            ax1.set_title('Total Edited Messages By The User')
+            ax1.tick_params(axis='x', rotation=75)  # Rotated tick labels by 90 degrees
+            st.pyplot(fig8)
+            figs.append(fig8)
             st.write("---")
 
             st.subheader("Total Contacts Shared By The User:")
-            st.bar_chart(user_activity_df, x='username', y='Shared_Contacts')
-
+            fig9, ax1 = plt.subplots(figsize=(10, 6))  # Increased figure size
+            ax1.bar(user_activity_df['username'], user_activity_df['Shared_Contacts'], width=0.5)  # Adjusted bar width
+            ax1.set_xlabel('User')
+            ax1.set_ylabel('Shared_Contacts')
+            ax1.set_title('Total Contacts Shared By The User')
+            ax1.tick_params(axis='x', rotation=75)  # Rotated tick labels by 90 degrees
+            st.pyplot(fig9)
+            figs.append(fig9)
             st.write("---")
 
         # Word and Emoji Analysis
         elif choice == "Word and Emoji Analysis":
-            wordcloud_image = helper.create_wordcloud(selected_user, df)
-            # Convert WordCloud to Image
-            wc_img = Image.new("RGB", (wordcloud_image.width, wordcloud_image.height))
-            wc_array = np.array(wordcloud_image)
-            wc_img.paste(Image.fromarray(wc_array), (0, 0))
-            st.subheader("Word Cloud:")
-            st.image(wc_img, use_column_width=True, caption="Word Cloud of Chat")
-            figs.append(wc_img)
-            st.write("---")
+            print(df.columns)
+            st.subheader("Wordcloud")
+            df_wc = helper.create_wordcloud(selected_user, df)
+            fig, ax = plt.subplots()
+            ax.imshow(df_wc)
+            st.pyplot(fig)
+            figs.append(fig)
 
-            # Emoji Analysis
+            # most common words
+            most_common_df = helper.most_common_words(selected_user, df)
+
+            fig, ax = plt.subplots()
+            ax.barh(most_common_df[0], most_common_df[1])
+            plt.xticks(rotation=65)
+            st.subheader('Most common words')
+            st.pyplot(fig)
+            figs.append(fig)
+
+            # emoji analysis
+            # Extracting the highest used emojis
             emoji_df = helper.emoji_helper(selected_user, df)
-            st.subheader("Emoji Analysis:")
+            (st.subheader("Emoji Analysis:"))
             st.dataframe(emoji_df)
             st.write("---")
 
             # Plot top 5 emojis
             plt.rcParams['font.sans-serif'] = ['Segoe UI Emoji']
-            fig, ax = plt.subplots()
+            fig, ax = plt.subplots(figsize=(8, 6))
             ax.pie(emoji_df['Frequency'].head(), labels=emoji_df['Emoji'].head(), autopct="%0.2f")
             st.pyplot(fig)
             figs.append(fig)
+
 
         # Timeline Analysis
         elif choice == "Timeline Analysis":
@@ -471,40 +585,20 @@ if uploaded_file:
             plt.xticks(rotation=60)
             st.pyplot(fig)
             figs.append(fig)
+if 'selected_user' in locals():  # Check if selected_user is defined
+    if selected_user == "Overall Users":
+        pdf_output_path = generate_pdf_report(figs, overall_titles, "testfile", selected_user)
+    else:
+        pdf_output_path = generate_pdf_report(figs, selected_user_titles, "testfile", selected_user)
 
-#st.sidebar.markdown("---")
-#st.sidebar.markdown("© 2024 ChatVerse. All rights reserved.")
+    # Read the generated PDF
+    with open(pdf_output_path, "rb") as f:
+        pdf_bytes = f.read()
 
-# Define the titles for overall analysis
-overall_titles = ["User Statistics","Sentiment Analysis","Comparative Analysis","User Activity","Overall User Activity",
-                        "Word and Emoji Analysis","Timeline Analysis"]
+    # Create download link with the filename including titles
+    download_link_sidebar = create_download_link_sidebar(pdf_bytes, "Analysis_Report")
 
-# Define the titles for selected user analysis
-selected_user_titles = ["User Statistics","Sentiment Analysis","Comparative Analysis","User Activity","Overall User Activity",
-                        "Word and Emoji Analysis","Timeline Analysis"]
-
-# Determine which titles to use based on the selected user
-if selected_user == 'Overall Users':
-    titles = overall_titles
+    # Display the download link in the sidebar
+    st.sidebar.markdown(download_link_sidebar, unsafe_allow_html=True)
 else:
-    titles = selected_user_titles
-
-# Filter out any titles that exceed the number of available figures
-titles = titles[:len(figs)]
-
-# Remove the sentiment score title if it's available and the user is not "Overall"
-if selected_user != 'Overall Users' and "Sentiment Scores" in titles:
-    titles.remove("Sentiment Scores")
-
-# Generate PDF report
-pdf_output_path = generate_pdf_report(figs, titles, "testfile", selected_user)
-
-# Read the generated PDF
-with open(pdf_output_path, "rb") as f:
-    pdf_bytes = f.read()
-
-# Create download link with the filename including titles
-download_link_sidebar = create_download_link_sidebar(pdf_bytes, "Analysis_Report")
-
-# Display the download link in the sidebar
-st.sidebar.markdown(download_link_sidebar, unsafe_allow_html=True)
+    st.sidebar.write("Please select a user to analyse the Whatsapp chat.")
