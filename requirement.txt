@@ -12,3 +12,5 @@ vaderSentiment
 emoji==2.8.0
 urlextract
 fpdf
+nltk==3.6.5
+vader_lexicon==3.3.2
