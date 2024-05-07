@@ -1,2 +1,2 @@
 # whatsappchat-analyser
-ML mini project on whatsapp chat analyser
+Mini project on whatsapp chat analyser 
