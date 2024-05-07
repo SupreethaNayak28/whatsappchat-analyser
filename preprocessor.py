@@ -2,8 +2,6 @@ import re
 import pandas as pd
 import emoji
 from urlextract import URLExtract
-
-
 def preprocess(data):
     pattern = r'(\d{1,2}/\d{1,2}/\d{2,4},\s\d{1,2}:\d{2}\s[apAP][mM]\s-\s)'
     parts = re.split(pattern, data)
@@ -33,6 +31,10 @@ def preprocess(data):
 
     df['period'] = df['hour'].apply(lambda x: 'Night' if 0 <= x < 6 else (
         'Morning' if 6 <= x < 12 else ('Afternoon' if 12 <= x < 18 else 'Evening')))
+
+     # Filter out rows where the message contains '<Media omitted>', or null
+    df = df[df['message'] != '<Media omitted>']  # Remove rows with '<Media omitted>'
+    df = df[df['message'] != 'null']  # Remove rows with null values in the 'message' column
 
     df = df.dropna(subset=['username'])
     return df
