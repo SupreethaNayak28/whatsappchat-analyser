@@ -20,7 +20,6 @@ from fpdf import FPDF
 # Suppressing the Streamlit warning
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
-
 def load_css(css_path):
     with open(css_path, "r") as f:
         css = f.read()
@@ -214,7 +213,7 @@ if uploaded_file:
             # Debug statements
             st.write("Filtered Data for Selected Users:")
 
-            st.write(user_filtered_df.head())  # Print first few rows of user filtered data
+            st.write(user_filtered_df.head(10))  # Print first few rows of user filtered data
 
             users_activity = user_filtered_df["username"].value_counts()
 
@@ -427,111 +426,63 @@ if uploaded_file:
                     st.write(f"{row['username']}: {row['message_length']:.2f} characters")
 
 
-
         elif choice == "Overall User Activity":
 
             user_activity_df = helper.user_activity_in_chat(df)
 
             st.header("Activity Analysis of Each User in a Group Chat:")
 
-            # Assuming user_activity_df contains the data
-            st.subheader("Total Messages Sent By The User:")
-            fig1, ax1 = plt.subplots(figsize=(10, 6))  # Increased figure size
-            ax1.bar(user_activity_df['username'], user_activity_df['Total_Messages'], width=0.5)  # Adjusted bar width
-            ax1.set_xlabel('User')
-            ax1.set_ylabel('Total Messages')
-            ax1.set_title('Total Messages Sent By The User')
-            ax1.tick_params(axis='x', rotation=75)  # Rotated tick labels by 90 degrees
-            st.pyplot(fig1)
-            figs.append(fig1)
+            if selected_user == 'Overall Users':
 
-            st.subheader("Total Words Sent By The User:")
-            fig2, ax1 = plt.subplots(figsize=(10, 6))  # Increased figure size
-            ax1.bar(user_activity_df['username'], user_activity_df['Total_Words'], width=0.5)  # Adjusted bar width
-            ax1.set_xlabel('User')
-            ax1.set_ylabel('Total Words')
-            ax1.set_title('Total Words Sent By The User')
-            ax1.tick_params(axis='x', rotation=75)  # Rotated tick labels by 90 degrees
-            st.pyplot(fig2)
-            figs.append(fig2)
+                for metric in ['Total_Messages', 'Total_Words', 'Percentage', 'Media_Shared', 'Links_Shared',
+                               'Emojis_Shared', 'Deleted_Messages', 'Edited_Messages', 'Shared_Contacts']:
+                    st.subheader(f"Total {metric.replace('_', ' ')} by Each User:")
 
-            st.subheader("Percentage of Messages Sent By The User:")
-            fig3, ax1 = plt.subplots(figsize=(10, 6))  # Increased figure size
-            ax1.bar(user_activity_df['username'], user_activity_df['Percentage'], width=0.5)  # Adjusted bar width
-            ax1.set_xlabel('User')
-            ax1.set_ylabel('Percentage')
-            ax1.set_title('Total Percentage By Each User')
-            ax1.tick_params(axis='x', rotation=75)  # Rotated tick labels by 90 degrees
-            st.pyplot(fig3)
-            figs.append(fig3)
+                    fig, ax = plt.subplots(figsize=(10, 6))
 
-            st.write("---")
+                    ax.bar(user_activity_df['username'], user_activity_df[metric], width=0.5)
 
-            st.subheader("Total Media Shared By The User:")
-            fig4, ax1 = plt.subplots(figsize=(10, 6))  # Increased figure size
-            ax1.bar(user_activity_df['username'], user_activity_df['Media_Shared'], width=0.5)  # Adjusted bar width
-            ax1.set_xlabel('User')
-            ax1.set_ylabel('Media Shared')
-            ax1.set_title('Total Media Shared By The User')
-            ax1.tick_params(axis='x', rotation=75)  # Rotated tick labels by 90 degrees
-            st.pyplot(fig4)
-            figs.append(fig4)
-            st.write("---")
+                    ax.set_xlabel('User')
 
-            st.subheader("Total Links Shared By The User:")
-            fig5, ax1 = plt.subplots(figsize=(10, 6))  # Increased figure size
-            ax1.bar(user_activity_df['username'], user_activity_df['Links_Shared'], width=0.5)  # Adjusted bar width
-            ax1.set_xlabel('User')
-            ax1.set_ylabel('Links Shared')
-            ax1.set_title('Total Links Shared By The User')
-            ax1.tick_params(axis='x', rotation=75)  # Rotated tick labels by 90 degrees
-            st.pyplot(fig5)
-            figs.append(fig5)
-            st.write("---")
+                    ax.set_ylabel(metric.replace('_', ' '))
 
-            st.subheader("Total Emojis Shared By The User:")
-            fig6, ax1 = plt.subplots(figsize=(10, 6))  # Increased figure size
-            ax1.bar(user_activity_df['username'], user_activity_df['Emojis_Shared'], width=0.5)  # Adjusted bar width
-            ax1.set_xlabel('User')
-            ax1.set_ylabel('Emojis Shared')
-            ax1.set_title('Total Emojis Shared By The User')
-            ax1.tick_params(axis='x', rotation=75)  # Rotated tick labels by 90 degrees
-            st.pyplot(fig6)
-            figs.append(fig6)
-            st.write("---")
+                    ax.set_title(f'Total {metric.replace("_", " ")} by Each User')
 
-            st.subheader("Total Deleted Messages By Each User:")
-            fig7, ax1 = plt.subplots(figsize=(10, 6))  # Increased figure size
-            ax1.bar(user_activity_df['username'], user_activity_df['Deleted_Messages'], width=0.5)  # Adjusted bar width
-            ax1.set_xlabel('User')
-            ax1.set_ylabel('Deleted_Messages')
-            ax1.set_title('Total Deleted Messages By The User')
-            ax1.tick_params(axis='x', rotation=75)  # Rotated tick labels by 90 degrees
-            st.pyplot(fig7)
-            figs.append(fig7)
-            st.write("---")
+                    ax.tick_params(axis='x', rotation=75)
 
-            st.subheader("Total Edited Messages By Each User:")
-            fig8, ax1 = plt.subplots(figsize=(10, 6))  # Increased figure size
-            ax1.bar(user_activity_df['username'], user_activity_df['Edited_Messages'], width=0.5)  # Adjusted bar width
-            ax1.set_xlabel('User')
-            ax1.set_ylabel('Edited_Messages')
-            ax1.set_title('Total Edited Messages By The User')
-            ax1.tick_params(axis='x', rotation=75)  # Rotated tick labels by 90 degrees
-            st.pyplot(fig8)
-            figs.append(fig8)
-            st.write("---")
+                    st.pyplot(fig)
 
-            st.subheader("Total Contacts Shared By The User:")
-            fig9, ax1 = plt.subplots(figsize=(10, 6))  # Increased figure size
-            ax1.bar(user_activity_df['username'], user_activity_df['Shared_Contacts'], width=0.5)  # Adjusted bar width
-            ax1.set_xlabel('User')
-            ax1.set_ylabel('Shared_Contacts')
-            ax1.set_title('Total Contacts Shared By The User')
-            ax1.tick_params(axis='x', rotation=75)  # Rotated tick labels by 90 degrees
-            st.pyplot(fig9)
-            figs.append(fig9)
-            st.write("---")
+                    figs.append(fig)
+
+                    st.write("---")
+
+            else:
+
+                selected_user_df = user_activity_df[user_activity_df['username'] == selected_user]
+
+                st.subheader(f"User: {selected_user}")
+
+                for metric in ['Total_Messages', 'Total_Words', 'Percentage', 'Media_Shared', 'Links_Shared',
+                               'Emojis_Shared', 'Deleted_Messages', 'Edited_Messages', 'Shared_Contacts']:
+                    st.write(f"Total {metric.replace('_', ' ')} by {selected_user}:")
+
+                    fig, ax = plt.subplots(figsize=(10, 6))
+
+                    ax.bar(selected_user_df['username'], selected_user_df[metric], width=0.5)
+
+                    ax.set_xlabel('User')
+
+                    ax.set_ylabel(metric.replace('_', ' '))
+
+                    ax.set_title(f'Total {metric.replace("_", " ")} by {selected_user}')
+
+                    ax.tick_params(axis='x', rotation=75)
+
+                    st.pyplot(fig)
+
+                    figs.append(fig)
+
+                    st.write("---")
 
         # Word and Emoji Analysis
         elif choice == "Word and Emoji Analysis":
