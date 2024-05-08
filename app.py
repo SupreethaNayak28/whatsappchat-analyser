@@ -400,18 +400,18 @@ if uploaded_file:
                 st.write(
                     f"Average Message Length for {selected_user}: {user_data.iloc[0]['message_length']:.2f} characters")
             else:
-                # Selecting the top 10 users based on average message length
+                # Selecting the top  users based on average message length
                 top10_users = avg_msg_lengths.sort_values(by='message_length', ascending=False).head(10)
 
                 # Create a new figure and axis
-                st.subheader("Top 10 Users by Average Message Length")
+                st.subheader("Top Users by Average Message Length")
                 fig, ax = plt.subplots(figsize=(10, 6))
 
                 # Plot the bar graph using Seaborn's default color palette
                 sns.barplot(data=top10_users, x='username', y='message_length', palette='viridis', ax=ax)
 
                 # Set title and labels
-                ax.set_title('Top 10 Users by Average Message Length')
+                ax.set_title('Top Users by Average Message Length')
                 ax.set_xlabel('User')
                 ax.set_ylabel('Average Message Length')
                 ax.tick_params(axis='x', rotation=45)
@@ -420,11 +420,10 @@ if uploaded_file:
                 st.pyplot(fig)
                 figs.append(fig)
 
-                # Display the average message lengths for the top 10 users
-                st.write("Average Message Lengths for Top 10 Users:")
+                # Display the average message lengths for the top  users
+                st.write("Average Message Lengths for Top Users:")
                 for index, row in top10_users.iterrows():
                     st.write(f"{row['username']}: {row['message_length']:.2f} characters")
-
 
         elif choice == "Overall User Activity":
 
@@ -540,6 +539,7 @@ if uploaded_file:
             plt.xticks(rotation=60)
             st.pyplot(fig)
             figs.append(fig)
+            
 if 'selected_user' in locals():  # Check if selected_user is defined
     if selected_user == "Overall Users":
         pdf_output_path = generate_pdf_report(figs, overall_titles, "testfile", selected_user)
